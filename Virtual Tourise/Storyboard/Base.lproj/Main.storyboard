@@ -146,7 +146,7 @@
                                                 </constraints>
                                             </activityIndicatorView>
                                         </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" red="0.92156862745098034" green="0.92156862745098034" blue="0.92941176470588238" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstItem="1sb-6k-g18" firstAttribute="centerX" secondItem="feA-X3-ly4" secondAttribute="centerX" id="0vV-As-mTA"/>
                                             <constraint firstItem="PHJ-X5-7Wg" firstAttribute="centerX" secondItem="feA-X3-ly4" secondAttribute="centerX" id="D8n-zj-IJ3"/>
@@ -186,6 +186,7 @@
                     <connections>
                         <outlet property="mActivityIndicator" destination="1sb-6k-g18" id="wGT-Hy-dWV"/>
                         <outlet property="mBtmBtnOutlet" destination="EUt-vq-P3s" id="Yzp-hx-i96"/>
+                        <outlet property="mBtnBackgroundView" destination="aIb-Jq-HPR" id="3aa-Cn-4eC"/>
                         <outlet property="mCollectionView" destination="BFk-S8-t5M" id="FG6-aR-4Oo"/>
                         <outlet property="mMapView" destination="VbH-xP-WrU" id="1X7-nq-4Cz"/>
                         <outlet property="mNoDataAvailableView" destination="feA-X3-ly4" id="rBX-bf-IxZ"/>

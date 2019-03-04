@@ -15,6 +15,7 @@ class PhotoDisplayVC: UIViewController {
     @IBOutlet weak var mMapView: MKMapView!
     @IBOutlet weak var mCollectionView: UICollectionView!
     @IBOutlet weak var mBtmBtnOutlet: UIButton!
+    @IBOutlet weak var mBtnBackgroundView : UIView!
     @IBOutlet weak var mNoDataAvailableView: UIView!
     @IBOutlet weak var mActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var mNoDataLbl: UILabel!
@@ -33,6 +34,8 @@ class PhotoDisplayVC: UIViewController {
     var mImgData = [ImageData]()
     var mImageNames : [String] = []
     var mImageStringDict = [String : ImageData]()
+    var mDownloadImageCount  = 0
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,11 +73,14 @@ class PhotoDisplayVC: UIViewController {
     }
     
     func disableBtn(){
-        mBtmBtnOutlet.titleLabel?.textColor = hexStringToUIColor(hex: "449CFF",alpha: 0.8)
+        
+       mBtmBtnOutlet.isEnabled = false
+       mBtnBackgroundView.backgroundColor = hexStringToUIColor(hex: "ebebed",alpha: 1)
     }
 
     func enableBtn(){
-        mBtmBtnOutlet.titleLabel?.textColor = hexStringToUIColor(hex: "449CFF",alpha: 1)
+        mBtmBtnOutlet.isEnabled = true
+        mBtnBackgroundView.backgroundColor = hexStringToUIColor(hex: "449CFF",alpha: 1)
     }
     func registerNib(){
         
@@ -99,6 +105,7 @@ class PhotoDisplayVC: UIViewController {
         if self.mImgData.count < 1{
            fetchData()
         }else{
+            enableBtn()
             fetchImageName()
             mCollectionView.reloadData()
         }
@@ -113,7 +120,6 @@ class PhotoDisplayVC: UIViewController {
     func fetchData(){
         mActivityIndicator.isHidden = false
         mActivityIndicator.startAnimating()
-        enableBtn()
         mNoDataAvailableView.isHidden = false
         
         Engine.seacrhPhotoUsingLatLon(lat: pCoordinate.latitude, lon: pCoordinate.longitude) { (data, error) in
@@ -135,7 +141,7 @@ class PhotoDisplayVC: UIViewController {
             
             else{
                 DispatchQueue.main.async {
-                    self.enableBtn()
+                    
                     self.mActivityIndicator.stopAnimating()
                     self.mActivityIndicator.isHidden = true
                     self.mNoDataAvailableView.isHidden = true
@@ -339,5 +345,10 @@ extension PhotoDisplayVC : PhotoDisplayCltnCelldelegate{
         image.pin = pPin
         try? dataController.viewContext.save()
         mImageStringDict[name] = image
+        mDownloadImageCount = mDownloadImageCount+1
+        print("\(mImageStringDict.count)" + " image names " + "\(mImageNames.count)")
+        if mDownloadImageCount == mImageNames.count{
+            enableBtn()
+        }
     }
 }
