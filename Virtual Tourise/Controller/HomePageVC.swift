@@ -61,7 +61,7 @@ class HomePageVC: UIViewController {
     func configureUI(){
         
         let longPressRecogniser = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        longPressRecogniser.minimumPressDuration = 1.0
+        longPressRecogniser.minimumPressDuration = 0.5
         mMapView.addGestureRecognizer(longPressRecogniser)
         mMapView.delegate = self
         
@@ -200,10 +200,7 @@ extension HomePageVC : MKMapViewDelegate{
             tappedLocationCoordinate = view.annotation?.coordinate
             performSegue(withIdentifier: "PhotoDisplayVC", sender: nil)
             print(selectedPin!.latitude)
-            
-            
-            
-            
+  
         }
     }
 

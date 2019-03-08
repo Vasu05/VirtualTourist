@@ -36,6 +36,7 @@ class PhotoDisplayVC: UIViewController {
     var mImageStringDict = [String : ImageData]()
     var mDownloadImageCount  = 0
     
+    static var imagecount = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -169,8 +170,7 @@ class PhotoDisplayVC: UIViewController {
                  return indexpath.row
             }
             
-            
-            
+
             //delete from core data also
             for item in indexes{
                 let imageName = mImageNames[item]
@@ -216,12 +216,6 @@ class PhotoDisplayVC: UIViewController {
         
     }
     
-    func getImageName() -> String{
-        
-        
-        
-        return ""
-    }
     
     func hexStringToUIColor (hex:String,alpha :Float) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
@@ -336,6 +330,9 @@ extension PhotoDisplayVC : MKMapViewDelegate{
 }
 
 extension PhotoDisplayVC : PhotoDisplayCltnCelldelegate{
+    func imageCancelled() {
+        
+    }
     func imageSavedSuccessfully(index: Int) {
         saveImagetoCoreData(name: mImageNames[index],index)
     }
@@ -347,7 +344,7 @@ extension PhotoDisplayVC : PhotoDisplayCltnCelldelegate{
         mImageStringDict[name] = image
         mDownloadImageCount = mDownloadImageCount+1
         print("\(mImageStringDict.count)" + " image names " + "\(mImageNames.count)")
-        if mDownloadImageCount == mImageNames.count{
+        if mDownloadImageCount >= mImageNames.count{
             enableBtn()
         }
     }

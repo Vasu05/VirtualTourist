@@ -9,6 +9,8 @@ import UIKit
 
 protocol PhotoDisplayCltnCelldelegate :class {
     func imageSavedSuccessfully(index : Int)
+    
+    func imageCancelled()
 }
 
 class PhotoDisplayCltnCell: UICollectionViewCell {
@@ -18,7 +20,7 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
     @IBOutlet weak var mSelectedView: UIView!
     weak var delegate : PhotoDisplayCltnCelldelegate?
     var cellIndex = -1
-    
+    static var count = 0
     var dataController:DataController!
     
     override func awakeFromNib() {
@@ -43,6 +45,8 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
                 self.mAcitivityIndicator.stopAnimating()
                 self.mAcitivityIndicator.isHidden = true
                 guard let data = data else {
+                    print("Error : \(String(describing: error?.localizedDescription))")
+                    self.delegate?.imageCancelled()
                     return
                 }
                 let imageData = UIImage(data: data)
@@ -63,11 +67,14 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
             do {
                 try data.write(to: fileURL)
                 self.delegate?.imageSavedSuccessfully(index: cellIndex)
-                print("file saved \(imageName)")
+                print("file saved \(imageName) count  ")
             } catch {
                 print("error saving file:", error)
             }
             
+        }
+        else{
+            print("outside print  \(imageName)")
         }
         
     }
