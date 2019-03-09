@@ -11,7 +11,7 @@ import MapKit
 import CoreData
 
 class PhotoDisplayVC: UIViewController {
-
+    
     @IBOutlet weak var mMapView: MKMapView!
     @IBOutlet weak var mCollectionView: UICollectionView!
     @IBOutlet weak var mBtmBtnOutlet: UIButton!
@@ -28,9 +28,9 @@ class PhotoDisplayVC: UIViewController {
     private var mDataSource :[PhotoSearchPlaceModel] = []
     private let cell_identifier = "PhotoDisplayCltnCell"
     var fetchedResultsController:NSFetchedResultsController<ImageData>!
-
+    
     var mSelectedCells = [IndexPath]()
-   
+    
     var mImgData = [ImageData]()
     var mImageNames : [String] = []
     var mImageStringDict = [String : ImageData]()
@@ -49,7 +49,7 @@ class PhotoDisplayVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-         navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.isHidden = false
         
     }
     
@@ -58,7 +58,7 @@ class PhotoDisplayVC: UIViewController {
         mCollectionView.dataSource = self
         mMapView.delegate = self
         mCollectionView.allowsMultipleSelection = true
-    
+        
         let annotation  = MKPointAnnotation()
         annotation.coordinate = pCoordinate
         mMapView.addAnnotation(annotation)
@@ -75,10 +75,10 @@ class PhotoDisplayVC: UIViewController {
     
     func disableBtn(){
         
-       mBtmBtnOutlet.isEnabled = false
-       mBtnBackgroundView.backgroundColor = hexStringToUIColor(hex: "ebebed",alpha: 1)
+        mBtmBtnOutlet.isEnabled = false
+        mBtnBackgroundView.backgroundColor = hexStringToUIColor(hex: "ebebed",alpha: 1)
     }
-
+    
     func enableBtn(){
         mBtmBtnOutlet.isEnabled = true
         mBtnBackgroundView.backgroundColor = hexStringToUIColor(hex: "449CFF",alpha: 1)
@@ -104,7 +104,7 @@ class PhotoDisplayVC: UIViewController {
         }
         
         if self.mImgData.count < 1{
-           fetchData()
+            fetchData()
         }else{
             enableBtn()
             fetchImageName()
@@ -124,9 +124,9 @@ class PhotoDisplayVC: UIViewController {
         mNoDataAvailableView.isHidden = false
         
         Engine.seacrhPhotoUsingLatLon(lat: pCoordinate.latitude, lon: pCoordinate.longitude) { (data, error) in
-
+            
             guard let data = data else{
-              print("error while fetching images using locations")
+                print("error while fetching images using locations")
                 return
             }
             self.mDataSource = data.photos.photo
@@ -139,7 +139,7 @@ class PhotoDisplayVC: UIViewController {
                     self.mNoDataLbl.text = "No Data Available"
                 }
             }
-            
+                
             else{
                 DispatchQueue.main.async {
                     
@@ -149,7 +149,7 @@ class PhotoDisplayVC: UIViewController {
                     self.configureDataSource()
                 }
             }
-           print("data has been loaded ......")
+            print("data has been loaded ......")
         }
     }
     
@@ -157,62 +157,79 @@ class PhotoDisplayVC: UIViewController {
         
         for _ in 0..<mDataSource.count{
             let currentDate = (Date().timeIntervalSince1970 * 1000)
-             mImageNames.append("\(currentDate)")
+            mImageNames.append("\(currentDate)")
         }
         self.mCollectionView.reloadData()
     }
     
     @IBAction func newCltnBtnClicked(_ sender: Any) {
+
+        var deleteAllFlag = false
+        var indexes  = mSelectedCells.map { (indexpath) in
+            return indexpath.row
+        }
         
-        if mSelectedCells.count > 0{
-            
-            let indexes  = mSelectedCells.map { (indexpath) in
-                 return indexpath.row
-            }
-            
-
-            //delete from core data also
-            for item in indexes{
-                let imageName = mImageNames[item]
-                if let imgData   = mImageStringDict[imageName]{
-                  dataController.viewContext.delete(imgData)
-                }
-                else{
-                    dataController.viewContext.delete(mImgData[item])
-                }
-                try? dataController.viewContext.save()
-                print("Items deleted ...")
-            }
-            
+        if mSelectedCells.count == 0{
             if mDataSource.count > 0{
-                mDataSource = mDataSource
-                    .enumerated()
-                    .filter { !indexes.contains($0.offset) }
-                    .map { $0.element }
+                indexes = (0...mDataSource.count-1).map {$0}
+            }else{
+                indexes = (0...mImgData.count-1).map {$0}
             }
-            else{
-                
-                mImgData = mImgData
-                    .enumerated()
-                    .filter { !indexes.contains($0.offset) }
-                    .map { $0.element }
-                
-            }
+            deleteAllFlag = true
             
-
-            mCollectionView.performBatchUpdates({
-                mCollectionView.deleteItems(at: mSelectedCells)
-            }) { (success) in
-                print("items deleted")
-                if success
-                {
-                   self.mSelectedCells = []
-                }
-
+            for i in 0..<indexes.count{
+                let indexpath = IndexPath(row: i, section: 0)
+                mSelectedCells.append(indexpath)
             }
-            mCollectionView.reloadData()
             
         }
+        
+        //delete from core data also
+        for item in indexes{
+            let imageName = mImageNames[item]
+            if let imgData   = mImageStringDict[imageName]{
+                dataController.viewContext.delete(imgData)
+            }
+            else{
+                dataController.viewContext.delete(mImgData[item])
+            }
+            try? dataController.viewContext.save()
+            print("Items deleted ...")
+        }
+        
+        if mDataSource.count > 0{
+            mDataSource = mDataSource
+                .enumerated()
+                .filter { !indexes.contains($0.offset) }
+                .map { $0.element }
+        }
+        else{
+            
+            mImgData = mImgData
+                .enumerated()
+                .filter { !indexes.contains($0.offset) }
+                .map { $0.element }
+            
+        }
+        
+        deleteImages(indexs: indexes)
+        
+        mCollectionView.performBatchUpdates({
+            mCollectionView.deleteItems(at: mSelectedCells)
+        }) { (success) in
+            print("items deleted")
+            if success
+            {
+                self.mSelectedCells = []
+            }
+            
+        }
+        mCollectionView.reloadData()
+        
+        if deleteAllFlag{
+            fetchData()
+        }
+        mBtmBtnOutlet.setTitle("New Collection", for: .normal)
         
     }
     
@@ -238,7 +255,7 @@ class PhotoDisplayVC: UIViewController {
             alpha: CGFloat(alpha)
         )
     }
-
+    
     
 }
 
@@ -256,27 +273,27 @@ extension PhotoDisplayVC : UICollectionViewDataSource,UICollectionViewDelegate,U
         }
         
         if mDataSource.count > 0{
-           let obj = mDataSource[indexPath.row]
-           cell.configureUIWithData(dataObj: obj,imageName: mImageNames[indexPath.row],index: indexPath.row)
+            let obj = mDataSource[indexPath.row]
+            cell.configureUIWithData(dataObj: obj,imageName: mImageNames[indexPath.row],index: indexPath.row)
         }
         else{
-           cell.configureUIWithData(dataObj: nil,imageName: mImageNames[indexPath.row],index: indexPath.row)
+            cell.configureUIWithData(dataObj: nil,imageName: mImageNames[indexPath.row],index: indexPath.row)
         }
-
+        
         return cell
         
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if mImgData.count > 0{
-          return mImgData.count
+            return mImgData.count
         }
-
+        
         return mDataSource.count
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-       
+        
         return CGSize(width: (UIScreen.main.bounds.size.width)/3-2, height: 64)
     }
     
@@ -285,8 +302,8 @@ extension PhotoDisplayVC : UICollectionViewDataSource,UICollectionViewDelegate,U
         cell.mSelectedView.isHidden = false
         
         if !(mSelectedCells.contains(indexPath)) {
-             mSelectedCells.append(indexPath)
-             mBtmBtnOutlet.setTitle("Remove Selected Images", for: .normal)
+            mSelectedCells.append(indexPath)
+            mBtmBtnOutlet.setTitle("Remove Selected Images", for: .normal)
             print("selectedCells - \(mSelectedCells)")
         }
         //cell.removeImgData()
@@ -326,7 +343,7 @@ extension PhotoDisplayVC : MKMapViewDelegate{
         }
         
         return pinView
-   }
+    }
 }
 
 extension PhotoDisplayVC : PhotoDisplayCltnCelldelegate{
@@ -347,5 +364,38 @@ extension PhotoDisplayVC : PhotoDisplayCltnCelldelegate{
         if mDownloadImageCount >= mImageNames.count{
             enableBtn()
         }
+    }
+    
+    
+    func deleteImages(indexs : [Int]){
+        
+        for i in indexs{
+            removeImageFromDisk(fileName: mImageNames[i])
+        }
+        
+        mImageNames = mImageNames
+            .enumerated()
+            .filter { !indexs.contains($0.offset) }
+            .map { $0.element }
+    }
+    
+    func removeImageFromDisk(fileName : String) {
+        
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+
+        guard let filePaths = try? FileManager.default.contentsOfDirectory(at: fileURL, includingPropertiesForKeys: nil, options: []) else { return }
+        for filePath in filePaths {
+            
+            do{
+                 try FileManager.default.removeItem(at: filePath)
+            }catch{
+                print("something bad occur ")
+            }
+            
+           
+        }
+
     }
 }

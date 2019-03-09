@@ -32,16 +32,20 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
     
     func configureUIWithData(dataObj:PhotoSearchPlaceModel?,imageName:String = "",index:Int = -1){
        
-        mAcitivityIndicator.startAnimating()
         cellIndex = index
         
         if let img = loadImageFromDocumentDirectory(nameOfImage: imageName){
             mPhotoView.image = img
         }
-        else if let obj = dataObj  {
+        else
+            if let obj = dataObj  {
+            mAcitivityIndicator.startAnimating()
             self.mAcitivityIndicator.isHidden = false
-            Engine.getPhotoUsing(dataObj: obj) { (data, error) in
+            Engine.getPhotoUsing(dataObj: obj) { [weak self] (data, error) in
                 
+                guard let self = self else{
+                    return
+                }
                 self.mAcitivityIndicator.stopAnimating()
                 self.mAcitivityIndicator.isHidden = true
                 guard let data = data else {
@@ -66,6 +70,7 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
         if let data = image.jpegData(compressionQuality: 1),!FileManager.default.fileExists(atPath: fileURL.path){
             do {
                 try data.write(to: fileURL)
+                
                 self.delegate?.imageSavedSuccessfully(index: cellIndex)
                 print("file saved \(imageName) count  ")
             } catch {
@@ -73,9 +78,7 @@ class PhotoDisplayCltnCell: UICollectionViewCell {
             }
             
         }
-        else{
-            print("outside print  \(imageName)")
-        }
+        
         
     }
     
