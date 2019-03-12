@@ -11,7 +11,7 @@ Home screen Persist
 - last location , zoom level of map.
 
 Map screen Persist
-- downloaded images corresponding to last image selected otherwise download fresh set of images from flickr using lat long.
+- downloaded images corresponding to last Pin selected otherwise download fresh set of images from flickr using lat long.
 
 
 ###### Home page
