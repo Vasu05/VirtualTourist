@@ -14,6 +14,19 @@ Map screen Persist
 - downloaded images corresponding to last image selected otherwise download fresh set of images from flickr using lat long.
 
 
+###### Home page
+<img src="Homescreen.PNG" width="250" height = "400">
 
 
+###### Home page Zoom
+<img src="Homescreen1.PNG" width="250" height = "400">
 
+
+###### Map View Page While Fetching
+<img src="mapscreen1.PNG" width="250" height = "400">
+
+###### Map View Page While Fetching2
+<img src="mapscreen2.PNG" width="250" height = "400">
+
+###### Map View Page After Downloaded
+<img src="mapscreen3.PNG" width="250" height = "400">
